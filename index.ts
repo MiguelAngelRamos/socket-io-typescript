@@ -20,16 +20,26 @@ app.use(cors());
 io.on('connection', (socket: Socket) => {
   console.log('a user connected');
 
-  // Evento personalizado - Manejar el ingreso a una sala
-  socket.on('join room', (room) => {
-    socket.join(room);
+  // Uniendo automaticamente al usuario a la sala "general"
+  socket.join('general');
+
+  // Manejando el Evento join room para unirse a una sala privada
+  socket.on('join room', (room: string) => {
+    leaveAllRoomsExceptGeneral(socket); // El usuario se salga de todas las salas excepto la general
+    socket.join(room); // Uniendose a una sala privada
     console.log(`User joined room: ${room}`);
   });
 
+  // Manejando el evento 'join general' para regresar a la sale general
+  socket.on('join general', () => {
+    leaveAllRoomsExceptGeneral(socket);
+    socket.join('general');
+  });
+
   // Evento personalizado 'chat message' para recibir mensajes del cliente
-  socket.on('chat message', (msg) => {
-    // Emitir el mensaje recibido a todos los clientes conectados
-    io.emit('chat message', msg);
+  socket.on('chat message', (data: {room: string; userName:string; message: string}) => {
+    // Emitiendo el mensaje a todos los usuarios de una sala especifica
+    io.to(data.room).emit('chat message', data);
   });
 
   // Evento de desconexión: se dispara cuando un cliente se desconecta
@@ -38,6 +48,13 @@ io.on('connection', (socket: Socket) => {
   });
 });
 
+function leaveAllRoomsExceptGeneral(socket: Socket) {
+  socket.rooms.forEach((room) => {
+    if(room !== 'general' && room !== socket.id) {
+      socket.leave(room);
+    }
+  })
+}
 // Iniciar el servidor para escuchar en el puerto 3000
 server.listen(3000, () => {
   console.log('listening on *:3000');
