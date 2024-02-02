@@ -9,7 +9,7 @@ const server = http.createServer(app);
 
 const io = new SocketIOServer(server, {
   cors: {
-    origin: "http://127.0.0.1:5500",
+    origin: ["http://127.0.0.1:5500", "http:otrodominio.com:puerto"],
     methods: ["GET", "POST"]
   }
 });
@@ -25,7 +25,8 @@ io.on('connection', (socket: Socket) => {
 
   // Manejando el Evento join room para unirse a una sala privada
   socket.on('join room', (room: string) => {
-    leaveAllRoomsExceptGeneral(socket); // El usuario se salga de todas las salas excepto la general
+    // leaveAllRoomsExceptGeneral(socket); // El usuario se salga de todas las salas excepto la general
+    socket.leave('general');
     socket.join(room); // Uniendose a una sala privada
     console.log(`User joined room: ${room}`);
   });
