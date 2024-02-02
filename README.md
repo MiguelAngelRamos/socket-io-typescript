@@ -20,3 +20,8 @@ npm install ts-node-dev -D
 ```sh
 npx tsc --init
 ```
+
+## Para arrancar el Servidor
+```sh
+npx ts-node-dev index.ts
+```

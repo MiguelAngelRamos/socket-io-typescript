@@ -9,7 +9,12 @@ const server = http.createServer(app);
 
 
 // TODO: habilitar el acceso al cliente configurar el objeto {}
-const io = new SocketIOServer(server, {});
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: "http://127.0.0.1:5500",
+    methods: ["GET", "POST"]
+  }
+});
 // Habilitar los CORS para las rutas express
 app.use(cors());
 
