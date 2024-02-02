@@ -7,8 +7,6 @@ import cors from 'cors';
 const app = express();
 const server = http.createServer(app);
 
-
-// TODO: habilitar el acceso al cliente configurar el objeto {}
 const io = new SocketIOServer(server, {
   cors: {
     origin: "http://127.0.0.1:5500",
@@ -21,6 +19,12 @@ app.use(cors());
 // Evento de conexión: se dispara cada vez que un cliente se conecta
 io.on('connection', (socket: Socket) => {
   console.log('a user connected');
+
+  // Evento personalizado - Manejar el ingreso a una sala
+  socket.on('join room', (room) => {
+    socket.join(room);
+    console.log(`User joined room: ${room}`);
+  });
 
   // Evento personalizado 'chat message' para recibir mensajes del cliente
   socket.on('chat message', (msg) => {
